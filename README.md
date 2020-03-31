@@ -19,11 +19,24 @@ Methodology:
 
 I began data exploration by checking the contents of each file and assigning them to dataframes with descriptive names using the function unpack_df which displays the head and info of a file, then naming each csv according to its contents. 
 
-```def unpack_df(filename, tsv=False, encoding=False):
+```
+def unpack_df(filename, tsv=False, encoding=False):
     """Display the head and info from a csv file.
+
     Kwargs:
     tsv -- if True sets delimiter to tabs
     encoding --  if True sets encoding to 'latin'"""
+    if encoding==True:
+        temp_df = pd.read_csv(filename, delimiter='\t', 
+                              encoding='latin')
+    elif tsv==True:
+        temp_df = pd.read_csv(filename, delimiter='\t')
+    else:
+        temp_df = pd.read_csv(filename)
+    print('Info from {}'.format(filename))
+    display(temp_df.head())
+    display(temp_df.info())
+    print('\n\n\n')
 ```
 
 It took some trial an error to discover which files needed special encoding instructions and tsv files were clearly marked.
@@ -40,11 +53,8 @@ I will measure success using two factors:
 I will investigate the following questions:            
 
 1. How much money should we invest?
-
 2. What kinds of films should we produce?
-
 3. When should they be released?
-
 4. Who should we hire to produce it? 
 
 # Step 3- Clean Data
@@ -57,7 +67,7 @@ I found duplicates in the rt_reviews dataframe and dropped them.
 
 I found substantial issues in most of the dataframes that needed addressing.
 
-###### gross_profits
+#### gross_profits
 
 There were substantial null values. To find a replacement value that made sense I first took the median of domestic gross, and compared it with the median of domestic gross for only the films that had a foreign gross value. 
 
@@ -65,18 +75,15 @@ I then found that foreign gross contained several strings with commas. I searche
 
 I found that:
 - The median 'domestic_gross' overall: 1,400,000 
-
 - The median 'domestic_gross' for films without 'foreign_gross': 180,000.  
-
 - The median 'domestic_gross' for films with 'foreign_gross': 16,500,000 
-
 - The median 'foreign_gross' for films with values: 19,000,000.
 
 Because films with a foreign_gross value are significantly larger than those with a null I preserved the shape of the values by using the ratio of 'domestic_gross' and 'foreign_gross' values to replace the nulls.
 
 Finally, I dropped the studio data column and the remaining nulls because it was unecessary to my analysis and they were few in number, respectfully.
 
-###### imdb_crew
+#### imdb_crew
 
 I didn't need birth year column, so I dropped it.
 
@@ -86,44 +93,45 @@ To replace the 'primary_profession' null values, I imputed the general term 'cre
 
 Finally, I dropped the remaining column because it was too incomplete.
 
-###### imdb_alt_titles
+#### imdb_alt_titles
 I didn't use this information for my analysis.
 
-###### imdb_details
+#### imdb_details
 
 The main useful information in this dataframe is the genres, with years and primary title as identifiers. For this analysis original_title and runtime will not be important information. 
 
 I also dropped rows without genre data because its a relatively small slice of the dataframe.
 
-###### imdb_creators
+#### imdb_creators
 
 I calculated the percentage of missing values in this dataframe and determined that it was appropriate to simply drop them.
 
-###### imdb_principals
+#### imdb_principals
 
 I dropped the character and ordering columns because it wasn't relevant to my analysis and after looking at the data closer, the jobs column was redundant with the category column so I dropped it too.
 
-###### imdb_ratings 
+#### imdb_ratings 
 
 Already contained no null values.
 
-###### rt_info
+#### rt_info
 
 I dropped the columns for dvd_date, currency and studio. Then I dropped the remaining rows with null values because they contained categorical data that is difficult to replace, or were in such high quatities that imputing a median or mean would skew the data.
 
-###### rt_reviews
+#### rt_reviews
 
 The only information I wanted from this dataframe was fresh rating so I dropped the rest. 
 
-###### tmdb 
+#### tmdb 
 
 Already contained no nulls.
 
-###### budgets
+#### budgets
 
 The first thing I needed to do was convert each value from a string to a integer. I used a function because I had to do it for three separate columns.
 
-```def fix_values(budgets, col):
+```
+def fix_values(budgets, col):
     """Convert strings with , and $ to integers."""
     broken_values = [value for value in budgets[col]]
     fixed_values = []
@@ -150,13 +158,9 @@ I also determined that I didn't need the 'imdb_creators' dataframe because that 
 I created a master dataframe in five steps:
 
 1. Create the main dataframe by joing imdb_details with imdb_ratings
-
 2. Impute the names from 'imdb_crew' into 'imdb_principals to create a 'roles' dataframe.
-
 3. Join the 'roles' dataframe to the main dataframe using tconst as an index.
-
 4. Join the budgets dataframe using title as an index.
-
 5. Drop any columns that are redundant or unecessary
 
 In the end, I had a dataframe, movies, that had 2126 films for further analysis.
@@ -171,7 +175,8 @@ Before doing any analysis, however, I had a few important features to create. Th
 
 To do this I created a dictionary with values for the estimated conversion ratio for each year. Then I defined a function that would multiply a value by it's infflation ratio and return the new value.
 
-```def adjust(value, year):
+```
+def adjust(value, year):
     """Return inflation adjusted value."""
     return round(value*infl_dict[year], 2)
 ```
@@ -184,7 +189,6 @@ The goal of the background section is look at trends of the industry overall and
 
 #### Industry Trends
 
-###### Modern Film Trends
 Because we're most interested in recent trends, I investigated trends over the last 20 years. 
 
 First I observed how profits have changed in the last 20 years. I used average profit rather than totals to account for differences in the amount of movies in the data for each year. 
@@ -195,7 +199,8 @@ I observed that foreign gross seems to be making a larger and larger impact on t
 
 I used this function:
 
-```def get_prop(yrlist):
+```
+def get_prop(yrlist):
     """Print proportion of foreign/wide gross 
     for 5 year span"""
     frn = trends[(trends['year']==yrlist[0])|
@@ -215,7 +220,7 @@ I used this function:
 ```
 And found that the proportion of gross box office coming from foreign markets has grown from 43% from 1999-2003, to 60% from 2014-2018.
 
-###### Profit- Defining Success
+#### Profit- Defining Success
 
 ![Distribution of Profit](figures/distprofit.png)
 
@@ -223,17 +228,17 @@ I discovered that the median adjusted profit for films is $14,787,479.62 and the
 
 I decided next to divide the profit distribution into quartiles so that it could be visualized more easily. I found that:
 
-Top 25% of films made more than: $92,843,958.34
-Top 50% of films made more than: $14,787,479.62
-Top 75% of films made more than: -$2,402,409.2
-100% of films made more than: -200,237,650.0
+- Top 25% of films made more than: $92,843,958.34
+- Top 50% of films made more than: $14,787,479.62
+- Top 75% of films made more than: -$2,402,409.2
+- 100% of films made more than: -200,237,650.0
 
 Next, I applied some rounded values based on that distribution to determine 4 different levels of profit outcome:
 
-Films with over $100 Million Dollars Profit: 514(24.18%)
-Films with over $15 Million Dollars Profit: 545(25.63%)
-Films with less than $15 Million Dollars Profit: 276(12.98%)
-Films that lost money: 791(37.21%)
+- Films with over $100 Million Dollars Profit: 514(24.18%)
+- Films with over $15 Million Dollars Profit: 545(25.63%)
+- Films with less than $15 Million Dollars Profit: 276(12.98%)
+- Films that lost money: 791(37.21%)
 
 I then gave these categories names, Blockbuster, Hit, Flop and Failure, such that the distribution looked like this:
 
@@ -241,7 +246,7 @@ I then gave these categories names, Blockbuster, Hit, Flop and Failure, such tha
 
 So the distribution in the histogram of profits can be explained by the wide spread of profits in the top half of the sample, compared to the bunching around 0 in the bottom half. Using categorical data paints a much clearer picture of the data. I can use the 15 million dollar threshold to differentiate between success and failure, while targeting profits of over 100 million.
 
-###### Audience Rating- Determining Success
+#### Audience Rating- Determining Success
 
 To determine how to define success when it comes to audience rating, I had to answer two questions at once:
 
@@ -265,17 +270,18 @@ The ratings are roughly normally distributed around a mean of 6.24. Next I compa
 
 There is a hint of positive correlation suggesting that higher quality films make more money. Next I looked at quantile data to separate the ratings into 5 quality levels so I could look at the data categorically.
 
-Top 20% of films average rating > 7.1
-Top 40% of films average rating > 6.6
-Top 60% of films average rating > 6.1
-Top 80% of films average rating > 5.4
-100% of films average rating > 1.6
+- Top 20% of films average rating > 7.1
+- Top 40% of films average rating > 6.6
+- Top 60% of films average rating > 6.1
+- Top 80% of films average rating > 5.4
+- 100% of films average rating > 1.6
 
 The minimum rating is somewhat of an outlier, and the vast majority of the ratings are within the middle 40% of data. This reflects the normal distribution above.
 
 I defined two functions: one to bin numerical data into 5 bins based on quantile:
 
-```def make_bins(df, col, cat, bin_names=[]):
+```
+def make_bins(df, col, cat, bin_names=[]):
     """Create 5 categorical bins based on quantile.
     
     kwarg= 
@@ -339,22 +345,22 @@ I used it to look at the relationship between film quality and box office gross 
 
 Next I wanted to utilize the numvotes column to investigate if the pattern held true for movies that receved a lot of votes. I began with an analysis of the distribution of votes:
 
-Mean: 80666.36
-Median: 80666.36
-25% films received at least 92676.75 votes.
-50% films received at least 24903.5 votes.
-75% films received at least 1502.67 votes.
-90% films received at least 100.0 votes.
+- Mean: 80666.36
+- Median: 80666.36
+- 25% films received at least 92676.75 votes.
+- 50% films received at least 24903.5 votes.
+- 75% films received at least 1502.67 votes.
+- 90% films received at least 100.0 votes.
 
-![Dist of NumVote](figures/distnumvote)
+![Dist of NumVote](figures/distnumvote.png)
 
 I used that to determine a threshold of 25000 votes was appropriate as it would include the top 50% most voted for films.
 
-![scatterplot](figures/popqualscat)
+![scatterplot](figures/popqualscat.png)
 
 Although there are still many well reviewed movies that made less money, the trend is even more clear with this slice of the data. To finish up my analysis I looked at this slice categorically.
 
-![popcatbox](figures/popcatbox)
+![popcatbox](figures/popcatbox.png)
 
 Since it is pretty clear from this data that the higher quality a film the more money it makes I determined that audience rating was a valid measure of success.
 
@@ -362,14 +368,14 @@ Since it is pretty clear from this data that the higher quality a film the more 
 
 The movie industry is growing, especially due to the increase in foreign box office returns. To determine success for the remainder of the analysis we will be using the thresholds described above and summarized here.
 
-###### Profit
+#### Profit
 
 - Blockbuster-  > 100 million dollars profit
 - Hit-          > 10 million dollars profit
 - Flop-         < 10 million dollars profit
 - Failure-      < 0 dollars profit
 
-###### Quality
+#### Quality
 
 - Highly Reviewed-  average rating > 7.1
 - Above Average-    average rating > 6.6
@@ -388,20 +394,20 @@ For this analysis I used audience rating and profit. Both of these factors will 
 
 First examined the distribution of profits.
 
-Mean: 45,763,179.17
-Median: 22,965,043.25
+- Mean: 45,763,179.17
+- Median: 22,965,043.25
 
 ![](figures/distcosts.png)
 
 An once again divided the data into 5 categories.
 
-The top 20% of movies by cost spend at least $71,490,309.78 (huge)
-The top 40% of movies by cost spend at least $32,843,038.68 (big)
-The top 60% of movies by cost spend at least $15,104,303.98 (average)
-The top 80% of movies by cost spend at least $4,094,817.87 (small)
-And (tiny)
+- The top 20% of movies by cost spend at least $71,490,309.78 (huge)
+- The top 40% of movies by cost spend at least $32,843,038.68 (big)
+- The top 60% of movies by cost spend at least $15,104,303.98 (average)
+- The top 80% of movies by cost spend at least $4,094,817.87 (small)
+- Movies that spent less than $4,094,817.87 (tiny)
 
-###### Question 1a. 
+### Question 1a. 
 
 When it comes to production budget, does spending more lead to a higher quality movie? To answer this I drew a simple scatter plot and observed the distibution of the values:
 
@@ -439,9 +445,10 @@ Upon closer look at the data though, an interesting problem arose. Outliers were
 
 Although it will be interesting to investigate this further in future work, I determined that it would be most effective to use profit for the purposes of the this analysis.
 
-I defined a set of function to calculate the rate of success for a category of films based on a threshold and plot it on a barplot.
+I defined a set of functions to calculate the rate of success for a category of films based on a threshold and plot it on a barplot.
 
-```def simple_successdf(df,group, measure, threshold):
+```
+def simple_successdf(df,group, measure, threshold):
     """Create a dataframe containing success and failure
     rate given a threshold for success."""
     df.loc[df[measure]> threshold, 'success']=True
@@ -496,33 +503,32 @@ def simple_rate(df,group,bin_label, measure, threshold,
 
 Based on $0 Threshold:
 
-Overall Success Rate is: 0.63
-winrate	lossrate
-Budget Level		
-Huge	0.88	0.12
-Big	0.75	0.25
-Average	0.61	0.39
-Small	0.57	0.43
-Tiny	0.33	0.67
+Overall Success Rate is 63%.
+
+- Huge(over ~70 mil)   :88%
+- Big(over ~30mil)     :75%
+- Average(over ~15mil) :61%
+- Small(over ~4mil)    :57%
+- Tiny(under ~4mil)    :33%
 
 ![](figures/profitovr0.png)
 
 Based on $15,000,000 Threshold:
 
-Overall Success Rate is: 0.5
-winrate	lossrate
-Budget Level		
-Huge	0.84	0.16
-Big	0.67	0.33
-Average	0.52	0.48
-Small	0.38	0.62
-Tiny	0.09	0.91
+Overall Success Rate is 50%
+
+- Huge(over ~70 mil)   :84%
+- Big(over ~30mil)     :67%
+- Average(over ~15mil) :52%
+- Small(over ~4mil)    :38%
+- Tiny(under ~4mil)    :9%
 
 ![](figures/profitovr15.png)
 
 I then defined another set of functions based on the simple rate function that drew a similar graph with bars for each category of success. 
 
-```def tiered_successdf(df,group):
+```
+def tiered_successdf(df,group):
     """Create a dataframe for success by profit tier."""
     df['count']=1
     
@@ -605,7 +611,8 @@ I analyzed budgets based on these tiers.
 
 This gave me a clear understanding that movies with a huge budget were most successful, but it did not account for the fact that those films also risk the most if they fail. To examine this issue I defined another function that calculated expected profits by by multiplying median loss and gain with the simple % chance that kind of movie made or lost money.  
 
-```def calculate_expected(df, group, bin_label, show_rates=True,
+```
+def calculate_expected(df, group, bin_label, show_rates=True,
                       save=(False,None)):
     """Draw a plot of expected profit.
     
@@ -666,22 +673,22 @@ Next my analysis shifted to analyzing genre. Because of the fact that a film can
 
 To create a new dataframe with genre data, first I split the existing genre entry into lists of strings and used those lists to populate a three new columns. I then created three dataframes grouped by those columns and concatenated them to create a master dataframe with an entry for every genre represented in the dataset. Finally, I used my judgment to combine the 22 genres into a more managable 16 with corresponding number of appearances:
 
-Drama                1195
-Comedy                724
-Action                598
-Crime/Mystery         562
-Adventure             459
-Thriller              456
-Horror                334
-History/Biography     301
-Romance               300
-Sci-Fi                202
-Documentary           191
-Fantasy               169
-Family                140
-Animation             130
-Musical/Music          94
-Sport                  60
+- Drama                1195
+- Comedy                724
+- Action                598
+- Crime/Mystery         562
+- Adventure             459
+- Thriller              456
+- Horror                334
+- History/Biography     301
+- Romance               300
+- Sci-Fi                202
+- Documentary           191
+- Fantasy               169
+- Family                140
+- Animation             130
+- Musical/Music          94
+- Sport                  60
 
 I used the new dataframe to plot the profit by genre:
 
@@ -712,7 +719,7 @@ My reccomendation is to invest in films from those top six genres, and preferabl
 
 # Question 3
 
-##### When should we release the film?
+#### When should we release the film?
 
 To know when to release a film I analyzed the month by month data. I split it into four seasons to compare which season is the best to release films overall. 
 
@@ -722,7 +729,11 @@ Then I narrowed focus to only those films that satisfy the previously observed o
 1)having a production cost of over 50 million dollars and 
 2)being of the Animation, Adventure, Sci-Fi, Action, Fantasy, or Family genres.
 
-There are 457 films in the target subgroup
+There are 457 films in the target subgroup.
+
+![](figures/tiertargetseasons.png)
+
+![](figures/expseasons.png)
 
 # Question 3 Conclusion
 
@@ -736,18 +747,18 @@ I analyzed this question by exploring the data on movie professionals. Then, I s
 
 I found the number of professionals in each role:
 
-actor                  6829
-producer               4783
-actress                4102
-writer                 3991
-director               2985
-composer               1683
-cinematographer        1251
-editor                  762
-self                    351
-production_designer     244
-archive_footage          16
-archive_sound             1
+- actor                  6829
+- producer               4783
+- actress                4102
+- writer                 3991
+- director               2985
+- composer               1683
+- cinematographer        1251
+- editor                  762
+- self                    351
+- production_designer     244
+- archive_footage          16
+- archive_sound             1
 
 I used that information to determine that I would analyze data for actors, actresses, director, producers, and writers.
 
