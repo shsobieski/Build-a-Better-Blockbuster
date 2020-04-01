@@ -770,6 +770,8 @@ Then I filtered out people whose films have rated below the threshold for succes
 
 Finally, I took the top 10 people sorted by total profit and plot their numbers on a scatterplot showing their average audience rating. The size of the plot point shows their average film profit. 
 
+Here is the output:
+
 ![](figures/actors.png)
 
 ![](figures/actresses.png)
