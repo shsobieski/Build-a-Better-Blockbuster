@@ -1,6 +1,6 @@
-# Module 1 Project
+# Build a Better Blockbuster
 
-Goal: Analyze film data to present a concise representation of the movie industry, analyze the success of movies based on various factors, and provide insights and reccomendations for the development of film projects.
+Goal: Analyze film related data to present a concise representation of the movie industry, assess the success of movies based on various factors, and provide insights and recomendations for the development of film projects.
 
 Methodology:
     
@@ -102,17 +102,6 @@ Already contained no nulls.
 #### budgets
 
 The first thing I needed to do was convert each value from a string to a integer. I used a function because I had to do it for three separate columns.
-
-```
-def fix_values(budgets, col):
-    """Convert strings with , and $ to integers."""
-    broken_values = [value for value in budgets[col]]
-    fixed_values = []
-    for value in broken_values:
-        fixed_values.append(int(value.replace(',','')
-                                .replace('$','')))
-    budgets[col] = fixed_values
-```
     
 Then I used the release date column to create a month and year column because that format suited my analysis better. 
 
@@ -122,9 +111,7 @@ Finally, I dropped the id column because it does not reference any of the other 
 
 # Step 4- Restructuring
 
-I reviewed the data and organized it into a single dataframe to use for analysis.
-
-Because the rotten tomatoes data doesn't have movie titles and it is a much smaller dataset than those with imdb ids, I chose not to move forward with it.
+I reviewed the data and organized it into a single dataframe to use for analysis. Because the rotten tomatoes data doesn't have movie titles and it is a much smaller dataset than those with imdb ids, I chose not to move forward with it.
 
 I also determined that I didn't need the 'imdb_creators' dataframe because that information is already in 'imdb_principals' and the 'gross_profits' dataframe does not contain production costs, so I didn't use it either. 
 
@@ -145,7 +132,6 @@ For analysis I started work in another notebook. I used the movies dataframe to 
 ### Feature Creation
 
 Before doing any analysis, however, I had a few important features to create. The first was adjusted the financial information for inflation. I based my estimated adjusted inflation on an average inflation rate of 3.16% per year over the last 100 years.
-
 To do this I created a dictionary with values for the estimated conversion ratio for each year. Then I defined a function that would multiply a value by it's infflation ratio and return the new value.
 
 ```
@@ -162,23 +148,17 @@ The goal of the background section is look at trends of the industry overall and
 
 #### Industry Trends
 
-Because we're most interested in recent trends, I investigated trends over the last 20 years. 
-
-First I observed how profits have changed in the last 20 years. I used average profit rather than totals to account for differences in the amount of movies in the data for each year. 
+Because we're most interested in recent trends, I investigated trends over the last 20 years. First I observed how profits have changed in the last 20 years. I used average profit rather than totals to account for differences in the amount of movies in the data for each year. 
 
 ![Trend Lines](figures/trends.png)
 
-I observed that foreign gross seems to be making a larger and larger impact on total worldwide gross in the past 20 years. That is a trend worth noticing.
+I observed that foreign gross seems to be making a larger and larger impact on total worldwide gross in the past 20 years. That is a trend worth noticing. The proportion of gross box office coming from foreign markets has grown from 43% in 1999-2003, to 60% in 2014-2018.
 
-I found that the proportion of gross box office coming from foreign markets has grown from 43% from 1999-2003, to 60% from 2014-2018.
-
-#### Profit- Defining Success
+#### Defining Success
 
 ![Distribution of Profit](figures/distprofit.png)
 
-I discovered that the median adjusted profit for films is $14,787,479.62 and the mean is $95,689,612.93. The distribution of those profits, however, is tightly bunched around 0.
-
-I decided next to divide the profit distribution into quartiles so that it could be visualized more easily. I found that:
+I discovered that the median adjusted profit for films is $14,787,479.62 and the mean is $95,689,612.93. The distribution of those profits, however, is tightly bunched around 0. So, I decided to divide the profit distribution into quartiles so that it could be visualized more easily. I found that:
 
 - Top 25% of films made more than: $92,843,958.34
 - Top 50% of films made more than: $14,787,479.62
@@ -196,11 +176,11 @@ I then gave these categories names, Blockbuster, Hit, Flop and Failure, such tha
 
 ![Profit Outcomes](figures/distoutcomes.png)
 
-So the distribution in the histogram of profits can be explained by the wide spread of profits in the top half of the sample, compared to the bunching around 0 in the bottom half. Using categorical data paints a much clearer picture of the data. I can use the 15 million dollar threshold to differentiate between success and failure, while targeting profits of over 100 million.
+The distribution in the histogram of profits can be explained by the wide spread of profits in the top half of the sample, compared to the bunching around 0 in the bottom half. Using categorical data paints a much clearer picture of the data. I can use the 15 million dollar threshold to differentiate between success and failure, while targeting profits of over 100 million.
 
 #### Audience Rating- Determining Success
 
-To determine how to define success when it comes to audience rating, I had to answer two questions at once:
+To determine how to define success when it comes to audience rating, I had to answer two questions:
 
 - Do postive ratings lead to bigger box office returns?
 - What rating threshold should we aim for? 
@@ -279,7 +259,7 @@ The movie industry is growing, especially due to the increase in foreign box off
 
 For this analysis I used audience rating and profit. Both of these factors will be compared to production costs so I can reccomend a target investment amount per film. 
 
-First examined the distribution of profits.
+First I examined the distribution of profits.
 
 - Mean: 45,763,179.17
 - Median: 22,965,043.25
@@ -469,13 +449,7 @@ I found the number of professionals in each role:
 
 I used that information to determine that I would analyze data for actors, actresses, director, producers, and writers.
 
-To narrow down the most successful people I first sliced away anyone with that has passed away. 
-
-Then, I sliced only people who's movies have performed in the 'successful' range. To do that I grouped the dataframe by people's names, gathering the total boxoffice and average rating. 
-
-Then I filtered out people whose films have rated below the threshold for success, 6.3.
-
-Finally, I took the top 10 people sorted by total profit and plot their numbers on a scatterplot showing their average audience rating. The size of the plot point shows their average film profit. 
+To narrow down the most successful people I first sliced away anyone with that has passed away. Then, I sliced only people who's movies have performed in the 'successful' range. To do that I grouped the dataframe by people's names, gathering the total boxoffice and average rating. Then I filtered out people whose films have rated below the threshold for success, 6.3. Finally, I took the top 10 people sorted by total profit and plotted their numbers on a scatterplot showing their average audience rating. The size of the plot point shows their average film profit. 
 
 Here is the output:
 
