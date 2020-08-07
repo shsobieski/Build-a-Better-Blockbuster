@@ -39,4 +39,4 @@ def calculate_expected(df, group, bin_label, show_rates=True,
                                 '$125 Million', '$175 Million',
                                 '$225 Million']);
     if save[0]==True:
-        plt.savefig(save[1])
+        plt.savefig(save[1], bbox_inches='tight', transparent=True)

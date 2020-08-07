@@ -33,4 +33,4 @@ def cat_box(df, col, xcol, cat, xlabel, ticks,
         plt.title(('Quartiles of {} by {}'
                   .format(xlabel,cat)));
         if save[0]==True:
-            plt.savefig(save[1])
+            plt.savefig(save[1], bbox_inches='tight', transparent=True)

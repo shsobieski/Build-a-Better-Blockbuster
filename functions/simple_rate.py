@@ -28,4 +28,4 @@ def simple_rate(df,group,bin_label, measure, threshold,
                                '80%', '100%']);
     sns.despine(top=True, right=True, bottom=True)
     if save[0]==True:
-        plt.savefig(save[1])
+        plt.savefig(save[1], bbox_inches='tight', transparent=True)

@@ -35,14 +35,14 @@ def slice_role(role, color, save=(False,None)):
 #Plot the results.
     sns.relplot(y=role, x='averagerating', 
                 size='averageprofit', sizes=(50,1500), 
-                data=grouped, height=7, aspect=1.9, 
+                data=grouped, height=6, aspect=1.5, 
                 color=color, legend=False)
     plt.title(('10 Most Profitable {}s'
                .format(role)).title())
-    plt.xticks(ticks=[6,6.5,7,7.5,8,8.5,9], 
-               labels=[6,6.5,7,7.5,8,8.5,9])
+    plt.xticks(ticks=[6,6.5,7,7.5,8,8.5], 
+               labels=[6,6.5,7,7.5,8,8.5])
     plt.ylabel('')
     plt.xlabel('Average Film Rating')
-    plt.xlim((6,9))
+    plt.xlim((6,8.5))
     if save[0]==True:
-        plt.savefig(save[1])
+        plt.savefig(save[1], bbox_inches='tight', transparent=True)
